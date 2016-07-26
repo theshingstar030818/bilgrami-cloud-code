@@ -189,7 +189,7 @@ Parse.Cloud.define("createNewPharmacyAccount", function(request, response) {
 		pharmacy.set("userName", request.params.userName);
 		pharmacy.set("password", request.params.password);
 		
-		pharmacy.set("pricing", Number(request.params.priceRate));
+		pharmacy.set("pricing", request.params.priceRate);
 		//pharmacy.set("priceRateOver10Km", Number(request.params.priceRateOver10Km));
 		//pharmacy.set("priceRateOver20Km", Number(request.params.priceRateOver20Km));
 		//pharmacy.set("priceRateOver30Km", Number(request.params.priceRateOver30Km));
