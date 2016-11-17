@@ -75,17 +75,26 @@ Parse.Cloud.define('notifyDriver', function(req, res) {
 
 Parse.Cloud.define('sendMailTest', function(req, res) {
 
-var sendgrid  = require('sendgrid')(sendgridAPIKEY);
-sendgrid.send({
-  to:       'tanzeelrana901223@gmail.com',
-  from:     'tanzeelrana@live.com',
-  subject:  'CLOUD CODE TEST EMAIL',
-  text:     'This email is for testing sendgrid code for cloud.'
-}, function(err, json) {
-  if (err) { return console.error(err); }
-  res.success(json);
+var helper = require('sendgrid').mail
+  
+from_email = new helper.Email("tanzeelrana901223@gmail.com")
+to_email = new helper.Email("tanzeelrana901223@gmail.com")
+subject = "Sending with SendGrid is Fun"
+content = new helper.Content("text/plain", "and easy to do anywhere, even with Node.js")
+mail = new helper.Mail(from_email, subject, to_email, content)
+
+var sg = require('sendgrid')(sendgridAPIKEY);
+var request = sg.emptyRequest({
+  method: 'POST',
+  path: '/v3/mail/send',
+  body: mail.toJSON()
 });
 
+sg.API(request, function(error, response) {
+  console.log(response.statusCode)
+  console.log(response.body)
+  console.log(response.headers)
+})
 
 });
 
@@ -147,18 +156,27 @@ Parse.Cloud.define("sendMail", function(request, response) {
     			"\n"+
     			CompanyName;
 
-    var sendgrid  = require('sendgrid')(sendgridAPIKEY);
+	var helper = require('sendgrid').mail
+  
+	from_email = new helper.Email(sendMail_from)
+	to_email = new helper.Email([request.params.pharmacyEmail,sendMail_to])
+	subject = subject
+	content = new helper.Content("text/plain", text)
+	mail = new helper.Mail(from_email, subject, to_email, content)
 
-	sendgrid.send({
-	  to: [request.params.pharmacyEmail,sendMail_to],
-	  from: sendMail_from,
-	  subject: subject,
-	  text: text,
-	  replyto: sendMail_replyto
-	}, function(err, json) {
-	  if (err) { return console.error(err); }
-	  response.success(json);
+	var sg = require('sendgrid')(sendgridAPIKEY);
+	var request = sg.emptyRequest({
+	method: 'POST',
+	path: '/v3/mail/send',
+	body: mail.toJSON()
 	});
+
+	sg.API(request, function(error, response) {
+	console.log(response.statusCode)
+	console.log(response.body)
+	console.log(response.headers)
+	})
+
 });
 
 Parse.Cloud.define("createNewPharmacyAccount", function(request, response) {
@@ -412,7 +430,7 @@ function newDriverAccountNotification(request){
 	});
 }
 
-Parse.Cloud.define("notifyDriverForDelivery", function(request, response) {
+Parse.Cloud.define("notifyDriverForDelivery", function(request, res) {
  	
     var subject = "New Order Pickup For You";
     var text = "You have a new order for pickup. please go to the app an view you pickup order";
@@ -420,16 +438,28 @@ Parse.Cloud.define("notifyDriverForDelivery", function(request, response) {
     var sendgrid  = require('sendgrid')('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');
 	var driverEmail = JSON.parse(request.params.driverObject).email;
 
-	sendgrid.send({
-	  to: [driverEmail],
-	  from: "deliveryconfirmation@pacecouriers.com",
-	  subject: subject,
-	  text: text,
-	  replyto: newDriverAccountNotification_replyto
-	}, function(err, json) {
-	  if (err) { return console.error(err); }
-	  response.success(json);
+	var helper = require('sendgrid').mail
+  
+	from_email = new helper.Email(sendMail_from)
+	to_email = new helper.Email(driverEmail)
+	subject = subject
+	content = new helper.Content("text/plain", text)
+	mail = new helper.Mail(from_email, subject, to_email, content)
+
+	var sg = require('sendgrid')(sendgridAPIKEY);
+	var request = sg.emptyRequest({
+	  method: 'POST',
+	  path: '/v3/mail/send',
+	  body: mail.toJSON()
 	});
+
+	sg.API(request, function(error, response) {
+	  console.log(response.statusCode)
+	  console.log(response.body)
+	  console.log(response.headers)
+	  res.success(response);
+	})
+
 });
 
 Parse.Cloud.define("updatePatientLatLng", function(request, response) {
