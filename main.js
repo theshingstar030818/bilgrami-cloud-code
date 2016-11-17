@@ -159,7 +159,7 @@ Parse.Cloud.define("sendMail", function(request, response) {
 	var helper = require('sendgrid').mail
   
 	from_email = new helper.Email(sendMail_from)
-	to_email = new helper.Email([request.params.pharmacyEmail,sendMail_to])
+	to_email = new helper.Email(sendMail_to)
 	subject = subject
 	content = new helper.Content("text/plain", text)
 	mail = new helper.Mail(from_email, subject, to_email, content)
