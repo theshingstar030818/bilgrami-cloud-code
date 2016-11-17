@@ -35,6 +35,7 @@ var newDriverAccountNotification_replyto = "bilgramitrading@gmail.com";
 
 
 Parse.Cloud.define('notifyDriver', function(req, res) {
+
 	var params = JSON.parse(req.params.params);
 	var driverId = params.driver.objectId
 	var driver = params.driver;
@@ -46,21 +47,29 @@ Parse.Cloud.define('notifyDriver', function(req, res) {
 				"\nThank You,\n"+
 				CompanyName ;
 
-	var sendgrid  = require('sendgrid')(sendgridAPIKEY);
 
-	sendgrid.send({
-	  to:       to,
-	  from:     notify_driver_from,
-	  subject:  subject,
-	  text:     body
-	}, function(err, json) {
-	  if (err) { 
-	  	var jsonResult = JSON.stringify(err);
-		res.error("Uh oh, something went wrong : " + jsonResult);
-	  	return console.error(jsonResult); 
-	  }
-	  res.success(json);
+	var helper = require('sendgrid').mail
+  
+	from_email = new helper.Email(sendMail_from)
+	to_email = new helper.Email(driver.email)
+	subject = "New order(s) for you"
+	
+	content = new helper.Content("text/plain", body)
+	mail = new helper.Mail(from_email, subject, to_email, content)
+
+	var sg = require('sendgrid')(sendgridAPIKEY);
+	var request = sg.emptyRequest({
+	  method: 'POST',
+	  path: '/v3/mail/send',
+	  body: mail.toJSON()
 	});
+
+	sg.API(request, function(error, response) {
+	  console.log(response.statusCode)
+	  console.log(response.body)
+	  console.log(response.headers)
+	  res.success(response);
+	})
 });
 
 
